@@ -1,0 +1,144 @@
+# === LLM Configuration ===
+llm:
+  offline:
+    provider: ollama
+    model: "qwen2.5:3b-instruct"
+    endpoint: "http://localhost:11434"
+    timeout: 60
+    temperature: 0.1
+    max_tokens: 1024
+  online:
+    provider: openai-codex
+    model: "gpt-5.4"
+    api_key_env: "OPENAI_API_KEY"
+    timeout: 60
+    temperature: 0.1
+    max_tokens: 1024
+  routing:
+    default_mode: auto
+    confidential_force_offline: true
+    fallback_on_api_failure: true
+    max_online_tokens_per_query: 8000
+  cost_control:
+    monthly_budget_usd: 200
+    budget_alert_threshold: 0.8
+    bypass_llm_for_simple_queries: true
+
+# === Search Configuration ===
+search:
+  hybrid_weights:
+    dense: 0.7
+    sparse: 0.3
+  reranker:
+    enabled: true
+    top_k_input: 20
+    top_k_output: 10
+  web_search:
+    enabled: true
+    trigger_threshold: 0.65
+    sensitive_keywords_filter: true
+
+# === Indexing Configuration ===
+indexing:
+  watch_paths:
+    - "/documents"
+  workspace_map:
+    # Domain Builder auto-registers during domain build
+    "공용": "shared"  # "공용" means "shared/common" — matches the actual Korean folder name
+  confidential_folders:
+    - "기밀"          # "기밀" means "confidential" — matches the actual Korean folder name
+    - "급여"          # "급여" means "salary/payroll" — matches the actual Korean folder name
+    - "confidential"
+  file_encodings: ["utf-8", "cp949", "euc-kr", "latin-1"]
+  debounce_seconds: 3
+  qdrant:
+    collection: "documents"
+    upsert_batch_size: 100
+  redis:
+    queue_name: "nexus:indexing:queue"
+    retry_queue: "nexus:indexing:retry"
+    dead_letter_queue: "nexus:indexing:dead_letter"
+    brpop_timeout: 5
+  retry:
+    max_retries: 3
+    retry_delay_seconds: 60
+  excel:
+    sample_rows: 20                        # Number of top rows to pass to the LLM
+    empty_row_scan_depth: 50               # Scan range for detecting empty rows
+    title_rows_sanity_threshold: 0.5       # Ratio for detecting LLM title_rows errors
+  chunking:
+    default: { strategy: "parent_child", chunk_size_tokens: 1536, overlap_tokens: 256 }
+    pdf: { strategy: "parent_child", chunk_size_tokens: 1536, overlap_tokens: 256 }
+    docx: { strategy: "parent_child", chunk_size_tokens: 1536, overlap_tokens: 256 }
+    xlsx: { strategy: "parent_child", chunk_size_tokens: 1536, overlap_tokens: 256 }
+    pptx: { strategy: "parent_child", chunk_size_tokens: 1536, overlap_tokens: 256 }
+    csv: { strategy: "parent_child", chunk_size_tokens: 1536, overlap_tokens: 256 }
+    parent_child:
+      parent_size_tokens: 2048               # Parent chunk size (context preservation)
+      child_size_tokens: 384                 # Child chunk size (search precision)
+      child_overlap_tokens: 64               # Overlap between children
+  contextual_chunking:
+    enabled: false                           # Disabled for initial indexing; enable after pipeline validation
+    max_context_tokens: 128                  # Maximum tokens for generated context
+  supported_extensions:
+    - ".pdf"
+    - ".xlsx"
+    - ".xls"
+    - ".pptx"
+    - ".docx"
+    - ".csv"
+    - ".html"
+    - ".md"
+    - ".txt"
+    - ".json"
+    - ".yaml"
+    - ".yml"
+    - ".xml"
+    - ".log"
+    - ".htm"
+
+# === OCR Configuration (Tier 0) ===
+ocr:
+  engine: paddleocr
+  lang: ["korean", "en"]
+  dpi: 300                        # Page rendering resolution
+  page_classification:
+    image_coverage_threshold: 0.9  # Image area ratio -> classified as scanned
+    mixed_coverage_threshold: 0.3  # Image+text mixed -> classified as mixed
+    drawings_threshold: 5          # Vector drawing count -> classified as scanned (excluding decorations)
+    scan_sample_pages: 5           # Number of pages to sample for scan detection (front/back)
+
+# === Embedding Configuration ===
+embedding:
+  model: "bge-m3"
+  format: "onnx"
+  dense_dim: 1024
+  max_batch_size: 32
+
+# === Reranker Configuration ===
+reranker:
+  model: "qwen3-reranker-0.6b"
+  format: "onnx"
+  max_doc_chars: 1500
+
+# === RBAC Configuration ===
+rbac:
+  roles:
+    admin: { workspaces: ["*"], can_access_confidential: true }
+    manager: { workspaces: [], can_access_confidential: true }
+    user: { workspaces: [], can_access_confidential: false }
+  users:
+    - { id: "admin1", role: "admin" }
+    - { id: "mgr_sales", role: "manager", workspaces: ["sales", "shared"] }
+    - { id: "user_kim", role: "user", workspaces: ["sales", "shared"] }
+    - { id: "user_park", role: "user", workspaces: ["engineering", "shared"] }
+
+# === Logging ===
+logging:
+  level: "INFO"
+  format: "json"
+  output: "stderr"
+
+# === Phase 2 Reserved (inactive) ===
+knowledge_graph:
+  enabled: false

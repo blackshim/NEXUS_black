@@ -1,0 +1,84 @@
+# NEXUS OpenClaw Agent Configuration
+# Production: ~/.openclaw/openclaw.json (models) + ~/.mcporter/mcporter.json (MCP)
+# This file is a reference for Docker deployment or new environment setup
+
+agents:
+  - id: nexus
+    # Production: openai-codex/gpt-5.4 (primary) + ollama/qwen3:4b (fallback)
+    # Can be changed via models set in openclaw.json
+    model: openai-codex/gpt-5.4
+    fallback_model: ollama/qwen3:4b
+
+    # MCP servers (register via mcporter config add; below is a reference for Docker deployment)
+    mcp_servers:
+      # === Core Services ===
+      - name: doc-search
+        command: python3
+        args: ["services/mcp-servers/doc-search/server.py"]
+        env:
+          QDRANT_URL: "http://qdrant:6333"
+          QDRANT_API_KEY: "${QDRANT_API_KEY}"
+          EMBEDDING_URL: "http://embedding:8080"
+
+      - name: doc-summary
+        command: python3
+        args: ["services/mcp-servers/doc-summary/server.py"]
+        env:
+          QDRANT_URL: "http://qdrant:6333"
+          QDRANT_API_KEY: "${QDRANT_API_KEY}"
+          EMBEDDING_URL: "http://embedding:8080"
+
+      - name: data-analysis
+        command: python3
+        args: ["services/mcp-servers/data-analysis/server.py"]
+        env:
+          DOCS_PATH: "/documents"
+
+      - name: indexing-admin
+        command: python3
+        args: ["services/mcp-servers/indexing-admin/server.py"]
+        env:
+          QDRANT_URL: "http://qdrant:6333"
+          QDRANT_API_KEY: "${QDRANT_API_KEY}"
+          EMBEDDING_URL: "http://embedding:8080"
+          REDIS_URL: "redis://redis:6379"
+
+      # === Domain Knowledge MCP (v1.1: DOMAINS_BASE pattern) ===
+      - name: domain-search
+        command: python3
+        args: ["services/mcp-servers/domain-search/server.py"]
+        env:
+          DOMAINS_BASE: "${DOMAINS_BASE}"
+
+      - name: domain-add
+        command: python3
+        args: ["services/mcp-servers/domain-add/server.py"]
+        env:
+          DOMAINS_BASE: "${DOMAINS_BASE}"
+
+      - name: domain-export
+        command: python3
+        args: ["services/mcp-servers/domain-export/server.py"]
+        env:
+          DOMAINS_BASE: "${DOMAINS_BASE}"
+
+      # === Domain Builder MCP (admin only) ===
+      - name: domain-builder
+        command: python3
+        args: ["services/mcp-servers/domain-builder/server.py"]
+        env:
+          DOMAINS_BASE: "${DOMAINS_BASE}"
+
+      # === External Services ===
+      - name: tavily-search
+        command: npx
+        args: ["-y", "tavily-mcp-server"]
+        env:
+          TAVILY_API_KEY: "${TAVILY_API_KEY}"
+
+channels:
+  telegram:
+    enabled: true
+  webchat:
+    enabled: true
+    port: 3000

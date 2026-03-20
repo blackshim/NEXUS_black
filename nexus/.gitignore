@@ -1,0 +1,39 @@
+# Environment
+.env
+*.env.local
+
+# Models (too large for git)
+models/
+
+# Docker volumes
+qdrant-data/
+neo4j-data/
+ollama-models/
+redis-data/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+/logs/
+
+# Backups
+/backups/
+
+# Workspace
+nexus-workspace/

@@ -1,0 +1,12 @@
+httpx==0.28.1
+qdrant-client==1.12.1
+redis==5.2.1
+watchdog==6.0.0
+pyyaml==6.0.2
+tiktoken==0.8.0
+openpyxl==3.1.5
+xlrd==2.0.1
+PyMuPDF==1.25.3
+docling==2.31.0
+paddlepaddle==3.0.0
+paddleocr==2.9.1

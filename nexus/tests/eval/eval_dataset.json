@@ -1,0 +1,129 @@
+[
+  {
+    "id": 1,
+    "query": "How much did the defect rate improve?",
+    "expected_file": "2024년_3분기_품질관리_보고서.txt",
+    "expected_file_en": "2024_Q3_Quality_Management_Report.txt",
+    "expected_answer_contains": ["12%", "0.5%"],
+    "category": "quality"
+  },
+  {
+    "id": 2,
+    "query": "What is Company A's revenue?",
+    "expected_file": "2024년_상반기_매출현황.xlsx",
+    "expected_file_en": "2024_H1_Revenue_Status.xlsx",
+    "expected_answer_contains": ["45.2"],
+    "category": "sales"
+  },
+  {
+    "id": 3,
+    "query": "Who is the contact person for Company A?",
+    "expected_file": "2024년_상반기_매출현황.xlsx",
+    "expected_file_en": "2024_H1_Revenue_Status.xlsx",
+    "expected_answer_contains": ["박영업"],
+    "expected_answer_en": ["Park Young-eop (sales rep name)"],
+    "category": "sales"
+  },
+  {
+    "id": 4,
+    "query": "What is the second-half revenue target?",
+    "expected_file": "2024년_하반기_영업전략.txt",
+    "expected_file_en": "2024_H2_Sales_Strategy.txt",
+    "expected_answer_contains": ["150억"],
+    "expected_answer_en": ["15 billion KRW"],
+    "category": "sales"
+  },
+  {
+    "id": 5,
+    "query": "What is competitor Company D's market share?",
+    "expected_file": "2024년_하반기_영업전략.txt",
+    "expected_file_en": "2024_H2_Sales_Strategy.txt",
+    "expected_answer_contains": ["25%"],
+    "category": "sales"
+  },
+  {
+    "id": 6,
+    "query": "What is the CH-300 injection pressure?",
+    "expected_file": "제조공정_SOP_A라인.pdf",
+    "expected_file_en": "Manufacturing_Process_SOP_Line_A.pdf",
+    "expected_answer_contains": ["95"],
+    "category": "manufacturing"
+  },
+  {
+    "id": 7,
+    "query": "What is the CH-300 cooling time?",
+    "expected_file": "제조공정_SOP_A라인.pdf",
+    "expected_file_en": "Manufacturing_Process_SOP_Line_A.pdf",
+    "expected_answer_contains": ["20"],
+    "category": "manufacturing"
+  },
+  {
+    "id": 8,
+    "query": "What does a new employee do on the first morning?",
+    "expected_file": "신입사원_온보딩_가이드.docx",
+    "expected_file_en": "New_Employee_Onboarding_Guide.docx",
+    "expected_answer_contains": ["회사 소개"],
+    "expected_answer_en": ["company introduction"],
+    "category": "hr"
+  },
+  {
+    "id": 9,
+    "query": "How many hours is the mandatory safety and health training?",
+    "expected_file": "신입사원_온보딩_가이드.docx",
+    "expected_file_en": "New_Employee_Onboarding_Guide.docx",
+    "expected_answer_contains": ["4시간"],
+    "expected_answer_en": ["4 hours"],
+    "category": "hr"
+  },
+  {
+    "id": 10,
+    "query": "What is the IoT sensor communication method?",
+    "expected_file": "2025년_신제품_개발_로드맵.pptx",
+    "expected_file_en": "2025_New_Product_Development_Roadmap.pptx",
+    "expected_answer_contains": ["BLE"],
+    "category": "engineering"
+  },
+  {
+    "id": 11,
+    "query": "What is the new product development budget?",
+    "expected_file": "2025년_신제품_개발_로드맵.pptx",
+    "expected_file_en": "2025_New_Product_Development_Roadmap.pptx",
+    "expected_answer_contains": ["15억"],
+    "expected_answer_en": ["1.5 billion KRW"],
+    "category": "engineering"
+  },
+  {
+    "id": 12,
+    "query": "What is the total budget for HACCP certification?",
+    "expected_file": "HACCP_준비_체크리스트.txt",
+    "expected_file_en": "HACCP_Preparation_Checklist.txt",
+    "expected_answer_contains": ["1억"],
+    "expected_answer_en": ["100 million KRW"],
+    "category": "quality"
+  },
+  {
+    "id": 13,
+    "query": "What is the metal detector threshold limit?",
+    "expected_file": "HACCP_준비_체크리스트.txt",
+    "expected_file_en": "HACCP_Preparation_Checklist.txt",
+    "expected_answer_contains": ["1.0mm", "1.5mm"],
+    "category": "quality"
+  },
+  {
+    "id": 14,
+    "query": "What is the API server JWT token expiration time?",
+    "expected_file": "API_서버_설계문서.txt",
+    "expected_file_en": "API_Server_Design_Document.txt",
+    "expected_answer_contains": ["30분"],
+    "expected_answer_en": ["30 minutes"],
+    "category": "engineering"
+  },
+  {
+    "id": 15,
+    "query": "What is the June revenue target achievement rate?",
+    "expected_file": "2024년_상반기_매출현황.xlsx",
+    "expected_file_en": "2024_H1_Revenue_Status.xlsx",
+    "expected_answer_contains": ["125%"],
+    "category": "sales"
+  }
+]

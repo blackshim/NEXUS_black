@@ -1,0 +1,51 @@
+# ═══ Environment & Secrets ═══
+.env
+*.env.local
+*.env.backup
+
+# ═══ Customer/Domain Data (runtime output) ═══
+domains/*/
+!domains/.gitkeep
+
+# ═══ Internal Design Documents (not public) ═══
+docs/NEXUS-설계서.md  # "설계서" = Design Document (actual Korean filename)
+docs/NEXUS-Complete-Guide.md
+docs/NEXUS-Deployment-Usage-Guide.md
+
+# ═══ AI Memory ═══
+.claude/
+
+# ═══ Models (too large, download separately) ═══
+nexus/models/
+
+# ═══ Docker Volumes ═══
+qdrant-data/
+neo4j-data/
+ollama-models/
+redis-data/
+
+# ═══ Python ═══
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# ═══ IDE ═══
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ═══ OS ═══
+.DS_Store
+Thumbs.db
+
+# ═══ Logs ═══
+*.log
+nexus/logs/
+
+# ═══ Backups ═══
+backups/
+archive/

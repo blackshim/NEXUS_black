@@ -1,0 +1,11 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'nexus-embedding'
+    static_configs:
+      - targets: ['embedding:8080']
+
+  - job_name: 'qdrant'
+    static_configs:
+      - targets: ['qdrant:6333']

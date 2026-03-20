@@ -1,0 +1,153 @@
+services:
+  # === Vector DB ===
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: nexus-qdrant
+    ports: ["6333:6333"]
+    volumes: [qdrant-data:/qdrant/storage]
+    environment:
+      QDRANT__SERVICE__API_KEY: ${QDRANT_API_KEY}
+    networks: [nexus-net]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/6333'"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # === Job Queue ===
+  redis:
+    image: redis:7-alpine
+    container_name: nexus-redis
+    ports: ["6379:6379"]
+    volumes: [redis-data:/data]
+    networks: [nexus-net]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # === Local LLM ===
+  # When using Windows native Ollama, keep the section below commented out.
+  # For Linux/server deployment, uncomment to use Docker Ollama.
+  # ollama:
+  #   image: ollama/ollama:latest
+  #   container_name: nexus-ollama
+  #   ports: ["11434:11434"]
+  #   volumes: [ollama-models:/root/.ollama]
+  #   networks: [nexus-net]
+  #   restart: unless-stopped
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: all
+  #             capabilities: [gpu]
+
+  # === Embedding + Reranker (built in Step 3) ===
+  embedding:
+    build: ./services/embedding
+    container_name: nexus-embedding
+    ports: ["8080:8080"]
+    volumes:
+      - ./models/bge-m3-onnx:/models/bge-m3
+      - ./models/qwen3-reranker-0.6b-onnx:/models/reranker
+    environment:
+      EMBEDDING_MODEL_PATH: /models/bge-m3
+      RERANKER_MODEL_PATH: /models/reranker
+      MAX_BATCH_SIZE: "32"
+    networks: [nexus-net]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # === Indexing Worker (built in Step 7) ===
+  indexing-worker:
+    build: ./services/indexing
+    container_name: nexus-indexing
+    volumes:
+      - ${DOCS_PATH:-./test-docs}:/documents:ro
+      - ./nexus.config.yaml:/app/nexus.config.yaml:ro
+    environment:
+      QDRANT_URL: http://qdrant:6333
+      QDRANT_API_KEY: ${QDRANT_API_KEY}
+      EMBEDDING_URL: http://embedding:8080
+      REDIS_URL: redis://redis:6379
+      OLLAMA_URL: http://host.docker.internal:11434
+      WORKER_COUNT: ${INDEXING_WORKERS:-4}
+    depends_on:
+      qdrant: { condition: service_healthy }
+      embedding: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    networks: [nexus-net]
+    restart: unless-stopped
+
+  # === Agent (activated in Step 10) ===
+  # openclaw:
+  #   image: openclaw/openclaw:latest
+  #   container_name: nexus-openclaw
+  #   ports:
+  #     - "${GATEWAY_PORT:-18789}:18789"
+  #     - "${WEBCHAT_PORT:-3000}:3000"
+  #   volumes:
+  #     - ./nexus-workspace:/workspace
+  #     - ./config/openclaw/soul.md:/workspace/SOUL.md
+  #     - ./config/openclaw/openclaw.yaml:/root/.openclaw/openclaw.yaml
+  #   depends_on: [qdrant, embedding, redis]  # Remove ollama when using Windows native Ollama
+  #   networks: [nexus-net]
+  #   restart: unless-stopped
+
+  # === Web UI (auxiliary) ===
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:latest
+    container_name: nexus-webui
+    ports: ["${WEBUI_PORT:-8081}:8080"]
+    environment:
+      OLLAMA_BASE_URL: http://host.docker.internal:11434  # Windows native Ollama
+    networks: [nexus-net]
+    restart: unless-stopped
+    profiles: ["webui"]
+
+  # === Knowledge Graph (Phase 2) ===
+  neo4j:
+    image: neo4j:5-community
+    container_name: nexus-neo4j
+    ports: ["7474:7474", "7687:7687"]
+    volumes: [neo4j-data:/data]
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:-nexus-neo4j-change-me}
+      NEO4J_PLUGINS: '["apoc"]'
+    networks: [nexus-net]
+    restart: unless-stopped
+    profiles: ["phase2"]
+
+  # === Monitoring ===
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: nexus-prometheus
+    volumes: [./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml]
+    networks: [nexus-net]
+    profiles: ["monitoring"]
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: nexus-grafana
+    ports: ["${GRAFANA_PORT:-3001}:3000"]
+    networks: [nexus-net]
+    profiles: ["monitoring"]
+
+volumes:
+  qdrant-data:
+  ollama-models:
+  redis-data:
+  neo4j-data:
+
+networks:
+  nexus-net:
+    driver: bridge
