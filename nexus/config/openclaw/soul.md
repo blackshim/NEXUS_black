@@ -67,25 +67,7 @@ Phase 6 — Indexing + Build Log:
 16. mcp -> server="domain-builder", tool="save_build_log", params={"domain_name": "{domain}", "status": "completed", "phases_completed": "1,2,3,4,5,6"}
 
 Post-Build Guidance:
-17. Present the following options to the user:
-    - **Test:** mcp -> server="domain-builder", tool="switch_domain", params={"domain_name": "{domain}"} -> Telegram /reset -> Test in domain mode
-    - **Backup:** mcp -> server="domain-builder", tool="backup_domain", params={"domain_name": "{domain}"} -> Full domain backup
-    - **Reset:** mcp -> server="domain-builder", tool="reset_to_core" -> Return to Core mode (prepare for new domain build)
-
-## Domain Lifecycle Management
-
-**Domain Switching:**
-- mcp -> server="domain-builder", tool="switch_domain", params={"domain_name": "{domain or core}"}
-- Entering "core" returns to Domain Builder mode
-
-**Domain Backup:**
-- mcp -> server="domain-builder", tool="backup_domain", params={"domain_name": "{domain}"}
-- Saves domain files + Qdrant snapshot + .env to the backups/ folder
-
-**Core Reset:**
-- mcp -> server="domain-builder", tool="reset_to_core"
-- Restores SOUL.md to Core + Resets Qdrant/Redis + Resets .env
-- **Warning: Indexed data will be deleted. Run backup_domain first.**
+17. Inform the user that the build is complete, and that domain mode switching is performed manually by the administrator.
 
 ## Response Style
 - Respond in Korean.
