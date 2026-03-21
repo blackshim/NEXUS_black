@@ -143,11 +143,24 @@ export default function activate(api: OpenClawPluginApi) {
         required: []
       },
       async execute(_toolId: string, params: Record<string, unknown>) {
+        // NEXUS patch: auto-collect flat params when LLM doesn't nest them properly
+        const KNOWN_KEYS = new Set(["server", "action", "tool", "params", "intent", "calls"]);
+        let toolParams = params?.params as Record<string, unknown> | undefined;
+        if (!toolParams || Object.keys(toolParams).length === 0) {
+          const collected: Record<string, unknown> = {};
+          for (const [k, v] of Object.entries(params || {})) {
+            if (!KNOWN_KEYS.has(k)) collected[k] = v;
+          }
+          if (Object.keys(collected).length > 0) {
+            toolParams = collected;
+            api.logger.info(`[mcp-bridge] Auto-collected flat params: ${JSON.stringify(Object.keys(collected))}`);
+          }
+        }
         const result = await router!.dispatch(
           params?.server as string,
           params?.action as string,
           params?.tool as string,
-          params?.params as Record<string, unknown> | undefined
+          toolParams
         );
         return injectUpdateNotice(result);
       }
